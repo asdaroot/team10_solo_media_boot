@@ -5,8 +5,15 @@ from utils.helpers import frames_to_base64, convert_to_ogg
 
 async def video_file_reply(update, context):
     # получение объекта video_file
-    video_file = await context.bot.get_file(update.message.video.file_id)
-    print("video_file -> ", video_file)
+    try:
+        video_file = await context.bot.get_file(update.message.video.file_id)
+        print("video_file -> ", video_file)
+    except:
+        reply = 'Видео слишком большое :)'
+        print("assistant:", reply)  
+        # перенаправление ответа в Telegram
+        await update.message.reply_text(reply) 
+
 
     # конвертация видео в формат .ogg
     audio_bytes = BytesIO(await video_file.download_as_bytearray())
@@ -24,29 +31,35 @@ async def video_file_reply(update, context):
     print("caption -> ", caption)
 
     # обработка видео
-    result = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text", 
-                        "text": transcription,
-                    },
-                     {
-                        "type": "text", 
-                        "text": caption,
-                    },
-                    *map(lambda x: {"image": x, "resize": 768}, video_frames[0::300]),
-                ],
-            },
-        ],
-        max_tokens=200,
-    )
+    try:
+        result = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text", 
+                            "text": transcription,
+                        },
+                        {
+                            "type": "text", 
+                            "text": caption,
+                        },
+                        *map(lambda x: {"image": x, "resize": 768}, video_frames[0::300]),
+                    ],
+                },
+            ],
+            max_tokens=200,
+        )
+    except:
+        reply = 'Видео слишком большое :)'
+        print("assistant:", reply)  
+        # перенаправление ответа в Telegram
+        await update.message.reply_text(reply) 
 
     # ответ
-    reply = result.choices[0].message.content.strip()
+    reply = f"Transcription: {transcription} \n Analysis: {result.choices[0].message.content.strip()}"
     print("assistant:", reply)
 
     # перенаправление ответа в Telegram

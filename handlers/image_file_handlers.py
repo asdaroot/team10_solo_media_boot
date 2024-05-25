@@ -11,6 +11,9 @@ async def image_file_reply(update, context):
     caption = update.message.caption
     print("caption -> ", caption)
 
+    # Формирование промпта для GPT
+    prompt = f"Проанализируй с чем связано данное изображение, сделай описание и краткое summary. Название изображения :\n\n{caption}"
+
     # обработка изображения
     description = client.chat.completions.create(
         model="gpt-4o",
@@ -20,7 +23,7 @@ async def image_file_reply(update, context):
                 "content": [
                     {
                         "type": "text", 
-                        "text": caption,
+                        "text": prompt,
                     },
                     {
                         "type": "image_url",

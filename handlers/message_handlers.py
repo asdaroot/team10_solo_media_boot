@@ -2,6 +2,7 @@ from telegram import Update
 from config.openai_client import client
 from config.openai_client import generate_response
 
+
 async def chatgpt_reply(update: Update, context):
     # текст входящего сообщения
     text = update.message.text
@@ -38,7 +39,25 @@ async def chatgpt_reply(update: Update, context):
         print("assistant:", translation)
 
 
+    # Проверка режима
+    if context.user_data.get('mode') == 'summary_text':
 
+        # Сформировать промпт для подготовки краткого содержания
+        prompt = (
+               f"Prepare a summary of the following text in Russian."
+               f"Keep technical terminology and emphasis for data scientists,"
+               f"machine learning and programming: \"{text}\""
+        )
+
+        # Генерация summary (text) с помощью OpenAI
+        summary_text = generate_response(prompt)
+
+        # Отправка перевода пользователю в Telegram
+        await update.message.reply_text(summary_text)
+
+        # Вывод текста и перевода в консоль для отладки
+        print("user:", text)
+        print("assistant:", summary_text)
 
 
 

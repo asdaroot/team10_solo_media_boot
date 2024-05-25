@@ -1,21 +1,34 @@
 from telegram.ext import MessageHandler, CommandHandler, filters
 from config.telegram_bot import application
-from handlers.command_handlers import start_reply, joke_reply, dialog_reply, translate_reply
+from handlers.command_handlers import start_reply, joke_reply, dialog_reply, translate_reply, \
+    summary_text_reply, summary_pdf_reply, summary_image_reply, summary_video_reply
 from handlers.message_handlers import chatgpt_reply
 from handlers.audio_handlers import audio_reply
 from handlers.video_note_handlers import video_note_reply
 from handlers.image_file_handlers import image_file_reply
 from handlers.video_file_handlers import video_file_reply
+from handlers.pdf_handlers import pdf_file_reply
 
 # Регистрация обработчиков команд
 start_handler = CommandHandler("start", start_reply)
 joke_handler = CommandHandler("joke", joke_reply)
 dialog_handler = CommandHandler("dialog", dialog_reply)
 translate_handler = CommandHandler("translate", translate_reply)
+summary_text_handler = CommandHandler("summary_text", summary_text_reply)
+summary_pdf_handler = CommandHandler("summary_pdf", summary_pdf_reply)
+summary_image_handler = CommandHandler("summary_image", summary_image_reply)
+summary_video_handler = CommandHandler("summary_video", summary_video_reply)
 application.add_handler(start_handler)
 application.add_handler(joke_handler)
 application.add_handler(dialog_handler)
 application.add_handler(translate_handler)
+application.add_handler(summary_text_handler)
+application.add_handler(summary_image_handler)
+application.add_handler(summary_video_handler)
+
+# Регистрация обработчика PDF файлов
+pdf_handler = MessageHandler(filters.Document.MimeType("application/pdf"), pdf_file_reply)
+application.add_handler(pdf_handler)
 
 # Регистрация обработчика текстовых сообщений
 message_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, chatgpt_reply)
